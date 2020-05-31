@@ -2,7 +2,7 @@ from pyspark import SparkContext
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import udf, lit, from_unixtime
 from pyspark.sql.types import StringType, LongType, IntegerType
-import math, time
+import math, time, sys
 
 
 # Set app name
@@ -126,7 +126,8 @@ def textual_solution(data):
 
 def main():
     # read the content of the file
-    input_file = "input/sorted_data/small100.csv"
+    # input_file = "input/sorted_data/small100.csv"
+    input_file = sys.argv[1]
     time_start = time.process_time()
     data = read_data(input_file)
     
