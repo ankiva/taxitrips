@@ -27,7 +27,7 @@ public class CellCalculator {
     private static final BigDecimal ENDING_LATITUDE = STARTING_LATITUDE.subtract(M500_LATITUDE_CHANGE.multiply(BigDecimal.valueOf(QUERY1_GRID_SIZE)));
     private static final BigDecimal ENDING_LONGITUDE = STARTING_LONGITUDE.add(M500_LONGITUDE_CHANGE.multiply(BigDecimal.valueOf(QUERY1_GRID_SIZE)));
 
-    public Point calculateQuery1Cell(BigDecimal latitude, BigDecimal longitude) {
+    public static Point calculateQuery1Cell(BigDecimal latitude, BigDecimal longitude) {
         if (isPointWithinBoundaries(latitude, longitude)) {
             int rowNumber = calculateLatitudeChangeFromStart(latitude).divideToIntegralValue(M500_LATITUDE_CHANGE).intValue() + 1;
             int columnNumber = calculateLongitudeChangeFromStart(longitude).divideToIntegralValue(M500_LONGITUDE_CHANGE).intValue() + 1;
@@ -36,7 +36,7 @@ public class CellCalculator {
         return null;
     }
 
-    public Point calculateQuery2Cell(BigDecimal latitude, BigDecimal longitude) {
+    public static Point calculateQuery2Cell(BigDecimal latitude, BigDecimal longitude) {
         if (isPointWithinBoundaries(latitude, longitude)) {
             int rowNumber = calculateLatitudeChangeFromStart(latitude).divideToIntegralValue(M250_LATITUDE_CHANGE).intValue() + 1;
             int columnNumber = calculateLongitudeChangeFromStart(longitude).divideToIntegralValue(M250_LONGITUDE_CHANGE).intValue() + 1;
@@ -45,23 +45,27 @@ public class CellCalculator {
         return null;
     }
 
-    private BigDecimal calculateLatitudeChangeFromStart(BigDecimal latitude){
+    private static BigDecimal calculateLatitudeChangeFromStart(BigDecimal latitude){
         return STARTING_LATITUDE.subtract(latitude);
     }
 
-    private BigDecimal calculateLongitudeChangeFromStart(BigDecimal longitude){
+    private static BigDecimal calculateLongitudeChangeFromStart(BigDecimal longitude){
         return longitude.subtract(STARTING_LONGITUDE);
     }
 
-    private boolean isPointWithinBoundaries(BigDecimal latitude, BigDecimal longitude) {
-        return isLatitudeWithinBoundaries(latitude) && isLongitudeWithinBoundaries(longitude);
+    public static boolean isPointWithinBoundaries(BigDecimal latitude, BigDecimal longitude) {
+        if(isLatitudeWithinBoundaries(latitude) && isLongitudeWithinBoundaries(longitude)){
+            return true;
+        }
+        System.out.println(latitude.toPlainString() + ", " + longitude.toPlainString() + " not within boundaries");
+        return false;
     }
 
-    private boolean isLatitudeWithinBoundaries(BigDecimal latitude) {
+    private static boolean isLatitudeWithinBoundaries(BigDecimal latitude) {
         return latitude.compareTo(STARTING_LATITUDE) <= 0 && latitude.compareTo(ENDING_LATITUDE) > 0;
     }
 
-    private boolean isLongitudeWithinBoundaries(BigDecimal longitude) {
+    private static boolean isLongitudeWithinBoundaries(BigDecimal longitude) {
         return longitude.compareTo(STARTING_LONGITUDE) >= 0 && longitude.compareTo(ENDING_LONGITUDE) < 0;
     }
 }
