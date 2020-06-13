@@ -2,7 +2,6 @@ package ee.ut.cs.bigdata.taxitrips.storm;
 
 import ee.ut.cs.bigdata.taxitrips.CellCalculator;
 import ee.ut.cs.bigdata.taxitrips.Point;
-import org.apache.commons.collections.ComparatorUtils;
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
@@ -67,7 +66,7 @@ public class Endtime15minWindowingBolt extends BaseWindowedBolt {
             List<BigDecimal> profits = entry.getValue();
             BigDecimal profit;
             if (profits.size() > 1) {
-                profits.sort(ComparatorUtils.naturalComparator());
+                profits.sort((profit1, profit2) -> profit1.compareTo(profit2));
                 profit = profits.get(profits.size() / 2);
             } else { //size==1
                 profit = profits.get(0);

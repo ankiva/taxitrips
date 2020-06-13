@@ -60,12 +60,12 @@ public class CsvFileSourceSpout implements IRichSpout {
     public void nextTuple() {
         try {
             String line = bufferedReader.readLine();
-            if(line != null) {
+            if (line != null) {
                 if (hasHeader && !headerRead) {
                     //read in header
                     headerRead = true;
                 } else {
-                    collector.emit(Arrays.asList(line.split(",")));
+                    collector.emit(Arrays.asList((Object[]) line.split(",")));
                 }
             }
         } catch (IOException e) {
