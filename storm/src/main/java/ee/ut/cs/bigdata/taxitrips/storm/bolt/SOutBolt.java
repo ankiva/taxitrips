@@ -1,4 +1,4 @@
-package ee.ut.cs.bigdata.taxitrips.storm;
+package ee.ut.cs.bigdata.taxitrips.storm.bolt;
 
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;

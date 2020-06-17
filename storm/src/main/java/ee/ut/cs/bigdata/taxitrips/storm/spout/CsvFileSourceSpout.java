@@ -1,29 +1,38 @@
-package ee.ut.cs.bigdata.taxitrips.storm;
+package ee.ut.cs.bigdata.taxitrips.storm.spout;
 
+import ee.ut.cs.bigdata.taxitrips.storm.CSV_FIELDS;
+import ee.ut.cs.bigdata.taxitrips.storm.GEN_FIELDS;
 import org.apache.storm.spout.SpoutOutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.IRichSpout;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.tuple.Fields;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 public class CsvFileSourceSpout implements IRichSpout {
 
+    private static final Logger LOG = LoggerFactory.getLogger(CsvFileSourceSpout.class);
+
     private final String dataFileName;
     private SpoutOutputCollector collector;
     private BufferedReader bufferedReader;
-    private boolean hasHeader = true;
+    private final boolean hasHeader;
     private boolean headerRead;
 
-    CsvFileSourceSpout(String dataFileName) {
+    public CsvFileSourceSpout(String dataFileName) {
         this.dataFileName = dataFileName;
+        this.hasHeader = true;
     }
 
     @Override
@@ -65,7 +74,13 @@ public class CsvFileSourceSpout implements IRichSpout {
                     //read in header
                     headerRead = true;
                 } else {
-                    collector.emit(Arrays.asList((Object[]) line.split(",")));
+                    String[] splitValues = line.split(",");
+                    List<Object> values = new ArrayList<>();
+                    for(String value : splitValues){
+                        values.add(value);
+                    }
+                    values.add(System.currentTimeMillis());
+                    collector.emit(values);
                 }
             }
         } catch (IOException e) {
@@ -95,6 +110,9 @@ public class CsvFileSourceSpout implements IRichSpout {
     }
 
     private Fields generateFields() {
-        return new Fields(Arrays.asList(CSV_FIELDS.values()).stream().map(enumField -> enumField.getValue()).collect(Collectors.toList()));
+        List<String> fieldNames = Arrays.stream(CSV_FIELDS.values()).map(CSV_FIELDS::getValue).collect(Collectors.toList());
+        fieldNames.add(GEN_FIELDS.PROCESSING_STARTTIME.getValue());
+        LOG.info("csv spout field names: " + fieldNames);
+        return new Fields(fieldNames);
     }
 }

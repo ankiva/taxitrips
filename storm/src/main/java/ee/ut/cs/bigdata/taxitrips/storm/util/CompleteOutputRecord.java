@@ -1,4 +1,4 @@
-package ee.ut.cs.bigdata.taxitrips.storm;
+package ee.ut.cs.bigdata.taxitrips.storm.util;
 
 import java.math.BigDecimal;
 

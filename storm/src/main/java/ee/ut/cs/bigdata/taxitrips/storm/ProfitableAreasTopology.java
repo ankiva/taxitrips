@@ -1,5 +1,9 @@
 package ee.ut.cs.bigdata.taxitrips.storm;
 
+import ee.ut.cs.bigdata.taxitrips.storm.bolt.Endtime15minWindowingBolt;
+import ee.ut.cs.bigdata.taxitrips.storm.bolt.Endtime30minWindowingBolt;
+import ee.ut.cs.bigdata.taxitrips.storm.bolt.ProfitCalculatorWindowingBolt;
+import ee.ut.cs.bigdata.taxitrips.storm.spout.CsvFileSourceSpout;
 import org.apache.storm.bolt.JoinBolt;
 import org.apache.storm.topology.ConfigurableTopology;
 import org.apache.storm.topology.TopologyBuilder;
@@ -13,8 +17,8 @@ public class ProfitableAreasTopology extends ConfigurableTopology {
     }
 
     @Override
-    protected int run(String[] args) throws Exception {
-        String dataFileName = null;
+    protected int run(String[] args) {
+        String dataFileName;
         if (args.length > 0) {
             dataFileName = args[0];
         } else {

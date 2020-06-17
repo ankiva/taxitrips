@@ -1,5 +1,6 @@
-package ee.ut.cs.bigdata.taxitrips.storm;
+package ee.ut.cs.bigdata.taxitrips.storm.bolt;
 
+import ee.ut.cs.bigdata.taxitrips.storm.util.CompleteOutputRecord;
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;

@@ -1,10 +1,10 @@
 package ee.ut.cs.bigdata.taxitrips;
 
-public class Point {
+public class Cell {
     private final int column;
     private final int row;
 
-    private Point(int column, int row) {
+    private Cell(int column, int row) {
         this.column = column;
         this.row = row;
     }
@@ -17,15 +17,13 @@ public class Point {
         return this.row;
     }
 
-    public static Point of(int column, int row) {
-        return new Point(column, row);
+    public static Cell of(int column, int row) {
+        return new Cell(column, row);
     }
 
     @Override
     public String toString() {
-        return "P(" + column +
-                "." + row +
-                ')';
+        return column + "." + row;
     }
 
     @Override
@@ -33,10 +31,10 @@ public class Point {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Point point = (Point) o;
+        Cell cell = (Cell) o;
 
-        if (column != point.column) return false;
-        return row == point.row;
+        if (column != cell.column) return false;
+        return row == cell.row;
     }
 
     @Override

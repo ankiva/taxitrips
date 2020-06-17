@@ -27,20 +27,20 @@ public class CellCalculator {
     private static final BigDecimal ENDING_LATITUDE = STARTING_LATITUDE.subtract(M500_LATITUDE_CHANGE.multiply(BigDecimal.valueOf(QUERY1_GRID_SIZE)));
     private static final BigDecimal ENDING_LONGITUDE = STARTING_LONGITUDE.add(M500_LONGITUDE_CHANGE.multiply(BigDecimal.valueOf(QUERY1_GRID_SIZE)));
 
-    public static Point calculateQuery1Cell(BigDecimal latitude, BigDecimal longitude) {
+    public static Cell calculateQuery1Cell(BigDecimal latitude, BigDecimal longitude) {
         if (isPointWithinBoundaries(latitude, longitude)) {
             int rowNumber = calculateLatitudeChangeFromStart(latitude).divideToIntegralValue(M500_LATITUDE_CHANGE).intValue() + 1;
             int columnNumber = calculateLongitudeChangeFromStart(longitude).divideToIntegralValue(M500_LONGITUDE_CHANGE).intValue() + 1;
-            return Point.of(columnNumber, rowNumber);
+            return Cell.of(columnNumber, rowNumber);
         }
         return null;
     }
 
-    public static Point calculateQuery2Cell(BigDecimal latitude, BigDecimal longitude) {
+    public static Cell calculateQuery2Cell(BigDecimal latitude, BigDecimal longitude) {
         if (isPointWithinBoundaries(latitude, longitude)) {
             int rowNumber = calculateLatitudeChangeFromStart(latitude).divideToIntegralValue(M250_LATITUDE_CHANGE).intValue() + 1;
             int columnNumber = calculateLongitudeChangeFromStart(longitude).divideToIntegralValue(M250_LONGITUDE_CHANGE).intValue() + 1;
-            return Point.of(columnNumber, rowNumber);
+            return Cell.of(columnNumber, rowNumber);
         }
         return null;
     }
@@ -57,7 +57,7 @@ public class CellCalculator {
         if(isLatitudeWithinBoundaries(latitude) && isLongitudeWithinBoundaries(longitude)){
             return true;
         }
-        System.out.println(latitude.toPlainString() + ", " + longitude.toPlainString() + " not within boundaries");
+//        System.out.println(latitude.toPlainString() + ", " + longitude.toPlainString() + " not within boundaries");
         return false;
     }
 
