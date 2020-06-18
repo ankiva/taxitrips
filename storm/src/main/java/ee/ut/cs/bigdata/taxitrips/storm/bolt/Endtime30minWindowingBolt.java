@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.*;
 
 public class Endtime30minWindowingBolt extends AbstractBaseWindowedBolt {
@@ -37,35 +37,37 @@ public class Endtime30minWindowingBolt extends AbstractBaseWindowedBolt {
 
     @Override
     public void execute(TupleWindow inputWindow) {
-//        printWindowInfo(inputWindow);
-        Map<String, ImmutablePair<Cell, LocalDateTime>> taxisLastRides = new HashMap<>();
-        for (Tuple record : inputWindow.get()) {
-            BigDecimal latitude = InputDataValidator.parseBigDecimal(record.getStringByField(CSV_FIELDS.DROPOFF_LATITUDE.getValue()));
-            BigDecimal longitude = InputDataValidator.parseBigDecimal(record.getStringByField(CSV_FIELDS.DROPOFF_LONGITUDE.getValue()));
-            if (latitude != null && longitude != null) {
-                Cell endingCell = CellCalculator.calculateQuery2Cell(latitude, longitude);
-                if (endingCell != null) {
-                    String medallion = record.getStringByField(CSV_FIELDS.MEDALLION.getValue());
-                    String rawDropoffDatetime = record.getStringByField(CSV_FIELDS.DROPOFF_DATETIME.getValue());
-                    if (InputDataValidator.validateField(medallion) && InputDataValidator.validateField(rawDropoffDatetime)) {
-                        LocalDateTime dropoffDatetime = TaxiDatetimeFormatter.parseDatetime(rawDropoffDatetime);
-                        if (dropoffDatetime != null) {
-                            ImmutablePair<Cell, LocalDateTime> newPair = new ImmutablePair<>(endingCell, dropoffDatetime);
-                            //persist only last rides per taxi
-                            taxisLastRides.merge(medallion, newPair,
-                                    (existingRidePerTaxi, newValue) -> existingRidePerTaxi.getRight().isBefore(dropoffDatetime) ? newValue : existingRidePerTaxi);
+        printWindowInfo(inputWindow);
+        if(inputWindow.getNew().size() + inputWindow.getExpired().size() > 0) {
+            Map<String, ImmutablePair<Cell, Instant>> taxisLastRides = new HashMap<>();
+            for (Tuple record : inputWindow.get()) {
+                BigDecimal latitude = InputDataValidator.parseBigDecimal(record.getStringByField(CSV_FIELDS.DROPOFF_LATITUDE.getValue()));
+                BigDecimal longitude = InputDataValidator.parseBigDecimal(record.getStringByField(CSV_FIELDS.DROPOFF_LONGITUDE.getValue()));
+                if (latitude != null && longitude != null) {
+                    Cell endingCell = CellCalculator.calculateQuery2Cell(latitude, longitude);
+                    if (endingCell != null) {
+                        String medallion = record.getStringByField(CSV_FIELDS.MEDALLION.getValue());
+                        String rawDropoffDatetime = record.getStringByField(CSV_FIELDS.DROPOFF_DATETIME.getValue());
+                        if (InputDataValidator.validateField(medallion) && InputDataValidator.validateField(rawDropoffDatetime)) {
+                            Instant dropoffDatetime = TaxiDatetimeFormatter.parseDatetime(rawDropoffDatetime);
+                            if (dropoffDatetime != null) {
+                                ImmutablePair<Cell, Instant> newPair = new ImmutablePair<>(endingCell, dropoffDatetime);
+                                //persist only last rides per taxi
+                                taxisLastRides.merge(medallion, newPair,
+                                        (existingRidePerTaxi, newValue) -> existingRidePerTaxi.getRight().isBefore(dropoffDatetime) ? newValue : existingRidePerTaxi);
+                            }
                         }
                     }
                 }
             }
+            LOG.info("grouped by last taxi rides: " + taxisLastRides);
+            calculateAndEmitTaxiCounts(inputWindow.getEndTimestamp(), taxisLastRides, inputWindow.getExpired(), inputWindow.getNew());
         }
-        LOG.debug("grouped by last taxi rides: " + taxisLastRides);
-        calculateAndEmitTaxiCounts(inputWindow.getEndTimestamp(), taxisLastRides, inputWindow.getExpired(), inputWindow.getNew());
     }
 
-    private void calculateAndEmitTaxiCounts(long endTimestamp, Map<String, ImmutablePair<Cell, LocalDateTime>> taxisLastRides, List<Tuple> expiredOnes, List<Tuple> newOnes) {
+    private void calculateAndEmitTaxiCounts(long endTimestamp, Map<String, ImmutablePair<Cell, Instant>> taxisLastRides, List<Tuple> expiredOnes, List<Tuple> newOnes) {
         Map<Cell, Set<String>> taxisPerEndingCell = new HashMap<>();
-        for (Map.Entry<String, ImmutablePair<Cell, LocalDateTime>> entry : taxisLastRides.entrySet()) {
+        for (Map.Entry<String, ImmutablePair<Cell, Instant>> entry : taxisLastRides.entrySet()) {
             Set<String> taxis = taxisPerEndingCell.get(entry.getValue().getLeft());
             if (taxis == null) {
                 taxis = new HashSet<>();

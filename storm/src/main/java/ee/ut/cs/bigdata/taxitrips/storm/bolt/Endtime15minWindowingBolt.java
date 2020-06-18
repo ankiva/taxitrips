@@ -34,24 +34,26 @@ public class Endtime15minWindowingBolt extends AbstractBaseWindowedBolt {
 
     @Override
     public void execute(TupleWindow inputWindow) {
-//        printWindowInfo(inputWindow);
-        Map<Cell, List<BigDecimal>> profitsPerStartingCell = new HashMap<>();
-        for (Tuple record : inputWindow.get()) {
-            Cell startingCell = calculateStartingCell(record);
-            if (startingCell != null) {
-                BigDecimal profit = calculateRecordProfit(record);
-                if (profit != null) {
-                    List<BigDecimal> cellProfits = profitsPerStartingCell.get(startingCell);
-                    if (cellProfits == null) {
-                        cellProfits = new ArrayList<>();
-                        profitsPerStartingCell.put(startingCell, cellProfits);
+        printWindowInfo(inputWindow);
+        if(inputWindow.getNew().size() + inputWindow.getExpired().size() > 0) {
+            Map<Cell, List<BigDecimal>> profitsPerStartingCell = new HashMap<>();
+            for (Tuple record : inputWindow.get()) {
+                Cell startingCell = calculateStartingCell(record);
+                if (startingCell != null) {
+                    BigDecimal profit = calculateRecordProfit(record);
+                    if (profit != null) {
+                        List<BigDecimal> cellProfits = profitsPerStartingCell.get(startingCell);
+                        if (cellProfits == null) {
+                            cellProfits = new ArrayList<>();
+                            profitsPerStartingCell.put(startingCell, cellProfits);
+                        }
+                        cellProfits.add(profit);
                     }
-                    cellProfits.add(profit);
                 }
             }
+            LOG.info("grouped by starting cell: " + profitsPerStartingCell);
+            calculateAndEmitProfitMedians(inputWindow.getEndTimestamp(), profitsPerStartingCell, inputWindow.getExpired(), inputWindow.getNew());
         }
-        LOG.debug("grouped by starting cell: " + profitsPerStartingCell);
-        calculateAndEmitProfitMedians(inputWindow.getEndTimestamp(), profitsPerStartingCell, inputWindow.getExpired(), inputWindow.getNew());
     }
 
     @Override

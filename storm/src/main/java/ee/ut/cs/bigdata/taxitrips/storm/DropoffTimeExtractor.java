@@ -6,6 +6,7 @@ import org.apache.storm.windowing.TimestampExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
@@ -17,9 +18,9 @@ public class DropoffTimeExtractor implements TimestampExtractor {
     public long extractTimestamp(Tuple tuple) {
         String dateTime = TupleDataUtil.getDropoffDatetimeString(tuple);
         if (InputDataValidator.validateField(dateTime)) {
-            LocalDateTime localDateTime = TaxiDatetimeFormatter.parseDatetime(dateTime);
-            if (localDateTime != null) {
-                return localDateTime.toEpochSecond(ZoneOffset.UTC); //probably is not utc, but should not matter
+            Instant timestamp = TaxiDatetimeFormatter.parseDatetime(dateTime);
+            if (timestamp != null) {
+                return timestamp.toEpochMilli();
             }
         }
         return -1;

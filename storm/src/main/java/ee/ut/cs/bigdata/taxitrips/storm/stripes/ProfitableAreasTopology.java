@@ -36,14 +36,14 @@ public class ProfitableAreasTopology extends ConfigurableTopology {
                 .shuffleGrouping("csvfilespout");
 
         builder.setBolt("endtime-15min-windowing", new Endtime15minWindowingBolt()
-                .withWindow(BaseWindowedBolt.Duration.minutes(15), BaseWindowedBolt.Count.of(1))
+                .withWindow(BaseWindowedBolt.Duration.minutes(15)/*, BaseWindowedBolt.Count.of(1)*/)
                 .withTimestampExtractor(new DropoffTimeExtractor())
                 .withLag(BaseWindowedBolt.Duration.minutes(0))
                 .withWatermarkInterval(BaseWindowedBolt.Duration.seconds(1)))
                 .shuffleGrouping("datafilter-bolt");
 
         builder.setBolt("endtime-30min-windowing", new Endtime30minWindowingBolt()
-                .withWindow(BaseWindowedBolt.Duration.minutes(30), BaseWindowedBolt.Count.of(1))
+                .withWindow(BaseWindowedBolt.Duration.minutes(30)/*, BaseWindowedBolt.Count.of(1)*/)
                 .withTimestampExtractor(new DropoffTimeExtractor())
                 .withLag(BaseWindowedBolt.Duration.minutes(0))
                 .withWatermarkInterval(BaseWindowedBolt.Duration.seconds(1)))
@@ -64,7 +64,7 @@ public class ProfitableAreasTopology extends ConfigurableTopology {
         builder.setBolt("csvwriter", new CsvFileOutputBolt(outputFileName, true))
                 .shuffleGrouping("aggregator");
 
-        conf.setDebug(true);
+//        conf.setDebug(true);
 
         String topologyName = "profitable-areas";
 

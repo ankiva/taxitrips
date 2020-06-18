@@ -10,18 +10,17 @@ import org.apache.storm.windowing.TupleWindow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.Instant;
 import java.util.List;
 
 public abstract class AbstractBaseWindowedBolt extends BaseWindowedBolt {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractBaseWindowedBolt.class);
+    private final Logger LOG = LoggerFactory.getLogger(getClass());
 
     protected void printWindowInfo(TupleWindow inputWindow){
-        LOG.debug("execute windowing: "
-                + LocalDateTime.ofEpochSecond(inputWindow.getStartTimestamp(), 0, ZoneOffset.UTC) + " - "
-                + LocalDateTime.ofEpochSecond(inputWindow.getEndTimestamp(), 0, ZoneOffset.UTC) + "="
+        LOG.info("execute windowing: " + inputWindow.getEndTimestamp() + ", "
+                + Instant.ofEpochMilli(inputWindow.getStartTimestamp()) + " - "
+                + Instant.ofEpochMilli(inputWindow.getEndTimestamp()) + "="
                 + (inputWindow.getEndTimestamp() - inputWindow.getStartTimestamp()) + ", removed: "
                 + inputWindow.getExpired().size() + ", added: " + inputWindow.getNew().size()
                 + ", size=" + inputWindow.get().size());
@@ -58,19 +57,19 @@ public abstract class AbstractBaseWindowedBolt extends BaseWindowedBolt {
             String rawDropoffDatetime = tuple.getStringByField(CSV_FIELDS.DROPOFF_DATETIME.getValue());
             Long processingStarttime = tuple.getLongByField(GEN_FIELDS.PROCESSING_STARTTIME.getValue());
 
-            LocalDateTime pickupDatetime = TaxiDatetimeFormatter.parseDatetime(rawPickupDatetime);
+            Instant pickupDatetime = TaxiDatetimeFormatter.parseDatetime(rawPickupDatetime);
             if (pickupDatetime != null) {
                 pickupDatetime = pickupDatetime.plus(windowLength);
                 rawPickupDatetime = TaxiDatetimeFormatter.formatDatetime(pickupDatetime);
             }
-            LocalDateTime dropoffDatetime = TaxiDatetimeFormatter.parseDatetime(rawDropoffDatetime);
+            Instant dropoffDatetime = TaxiDatetimeFormatter.parseDatetime(rawDropoffDatetime);
             if (dropoffDatetime != null) {
                 dropoffDatetime = dropoffDatetime.plus(windowLength);
                 rawDropoffDatetime = TaxiDatetimeFormatter.formatDatetime(dropoffDatetime);
             }
             return new ChangeTupleData(rawPickupDatetime, rawDropoffDatetime, processingStarttime);
         } else {
-            LOG.debug("No tuple window change - no new tuples and no expired tuples");
+            LOG.info("No tuple window change - no new tuples and no expired tuples");
         }
         return null;
     }
