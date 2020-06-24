@@ -83,6 +83,8 @@ public class CsvFileSourceSpout implements IRichSpout {
                     values.add(System.currentTimeMillis());
                     collector.emit(values);
                 }
+            } else {
+                System.err.println("nothing more to read, time: " + Instant.now());
             }
         } catch (IOException e) {
             System.err.println("Failed to read file");
