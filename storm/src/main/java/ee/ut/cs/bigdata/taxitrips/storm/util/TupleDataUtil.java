@@ -16,6 +16,14 @@ public class TupleDataUtil {
         return InputDataValidator.parseBigDecimal(record.getStringByField(CSV_FIELDS.PICKUP_LONGITUDE.getValue()));
     }
 
+    public static BigDecimal getDropoffLatitude(Tuple record){
+        return InputDataValidator.parseBigDecimal(record.getStringByField(CSV_FIELDS.DROPOFF_LATITUDE.getValue()));
+    }
+
+    public static BigDecimal getDropoffLongitude(Tuple record){
+        return InputDataValidator.parseBigDecimal(record.getStringByField(CSV_FIELDS.DROPOFF_LONGITUDE.getValue()));
+    }
+
     public static BigDecimal getFareAmount(Tuple record){
         return InputDataValidator.parseBigDecimal(record.getStringByField(CSV_FIELDS.FARE_AMOUNT.getValue()));
     }
