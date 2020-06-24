@@ -18,10 +18,10 @@ import org.slf4j.LoggerFactory;
 import java.math.BigDecimal;
 import java.util.*;
 
-public class End15minWindow extends AbstractBaseWindowedBolt {
+public class End30minWindow extends AbstractBaseWindowedBolt {
 
 
-    private static final Logger LOG = LoggerFactory.getLogger(End15minWindow.class);
+    private static final Logger LOG = LoggerFactory.getLogger(End30minWindow.class);
 
     private OutputCollector collector;
 
@@ -87,6 +87,7 @@ public class End15minWindow extends AbstractBaseWindowedBolt {
                 routeMap.put(route, 1);
             }
         }
+
         // Make a list of route frequency corresponding to each entry
         List<Integer> counts = new ArrayList<>();
         for (Pair<String, String> route : routes) {
@@ -99,7 +100,7 @@ public class End15minWindow extends AbstractBaseWindowedBolt {
     private void emitForOneChange(long endTimestamp, List<Pair<String, String>> routes, List<Integer> counts, List<Tuple> expiredOnes, List<Tuple> newOnes) {
         issueWarningIfMultipleChanges(expiredOnes, newOnes);
 
-        ChangeTupleData changeTupleData = selectTupleChanges(newOnes, expiredOnes, java.time.Duration.ofMinutes(15));
+        ChangeTupleData changeTupleData = selectTupleChanges(newOnes, expiredOnes, java.time.Duration.ofMinutes(30));
         String pickupDatetime = null;
         String dropoffDatetime = null;
         Long processingStarttime = null;
