@@ -7,7 +7,7 @@
 
 ## Query 1 - frequent routes
 Query calculates most frequent taxi routes based on 
-given data.
+given data. Output will be written to Query1Output.csv file in execution folder.
 
 ### For unix
 ```
