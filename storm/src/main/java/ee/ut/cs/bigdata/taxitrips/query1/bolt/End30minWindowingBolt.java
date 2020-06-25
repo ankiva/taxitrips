@@ -28,6 +28,8 @@ public class End30minWindowingBolt extends AbstractBaseWindowedBolt {
 
     private OutputCollector collector;
 
+    private List<Object> latestData;
+
     @Override
     public void prepare(Map<String, Object> topoConf, TopologyContext context, OutputCollector collector) {
         this.collector = collector;
@@ -59,8 +61,15 @@ public class End30minWindowingBolt extends AbstractBaseWindowedBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("starting_cell", "ending_cell", "route_freq", "pickup_datetime",
-                "dropoff_datetime", "delay"));
+        List<String> fields = new ArrayList<>();
+        fields.add("pickup_datetime");
+        fields.add("dropoff_datetime");
+        for (int i = 1; i < 11; i++) {
+            fields.add("start_cell_id_" + i);
+            fields.add("end_cell_id_" + i);
+        }
+        fields.add("delay");
+        declarer.declare(new Fields(fields));
     }
 
     private Cell calculateStartingCell(Tuple record) {
@@ -133,16 +142,37 @@ public class End30minWindowingBolt extends AbstractBaseWindowedBolt {
     protected void emitCellsAndRouteFreq(String pickupDatetime, String dropoffDatetime,
                                          Long processingStarttime, List<Pair<String, String>> routes, List<Integer> counts) {
         // Loop over routes in reverse order to get top 10 frequent routes
-        for (int i = routes.size() - 1; i >= 0; i--) {
-            if (i > routes.size() - 11) {
-                // If there are less that 10 routes emitted, emit more
-                collector.emit(Arrays.asList(routes.get(i).getKey(), routes.get(i).getValue(), counts.get(i),
-                        pickupDatetime, dropoffDatetime, System.currentTimeMillis() - processingStarttime));
+        List<Object> emits = new ArrayList<>();
+        emits.add(pickupDatetime);
+        emits.add(dropoffDatetime);
+        for(int i = 0; i < 10; i++){
+            if(i < routes.size()){
+                Pair<String, String> cell = routes.get(routes.size() - i - 1);
+                emits.add(cell.getKey());
+                emits.add(cell.getValue());
             } else {
-                // If the record does not make it into top 10 most frequent routes, emit nulls
-                collector.emit(Arrays.asList(null, null, null, null, null, null));
+                emits.add(null);
+                emits.add(null);
             }
         }
+        emits.add(System.currentTimeMillis() - processingStarttime);
+
+        if(hasChanged(emits)){
+            collector.emit(emits);
+            latestData = emits;
+        }
+    }
+
+    private boolean hasChanged(List<Object> currentData) {
+        if (this.latestData != null) {
+            for (int i = 3; i < currentData.size() - 1; i++) {
+                if (!Objects.equals(currentData.get(i), this.latestData.get(i))) {
+                    return true;
+                }
+            }
+            return false;
+        }
+        return true;
     }
 
 }
