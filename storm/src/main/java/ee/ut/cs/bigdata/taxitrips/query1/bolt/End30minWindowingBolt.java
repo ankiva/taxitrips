@@ -6,7 +6,6 @@ import ee.ut.cs.bigdata.taxitrips.storm.bolt.AbstractBaseWindowedBolt;
 import ee.ut.cs.bigdata.taxitrips.storm.util.ChangeTupleData;
 import ee.ut.cs.bigdata.taxitrips.storm.util.TupleDataUtil;
 import javafx.util.Pair;
-import org.apache.storm.shade.org.apache.commons.collections.ArrayStack;
 import org.apache.storm.task.OutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
@@ -22,10 +21,10 @@ import java.util.*;
 import static java.util.Map.Entry.comparingByValue;
 import static java.util.stream.Collectors.toMap;
 
-public class End30minWindow extends AbstractBaseWindowedBolt {
+public class End30minWindowingBolt extends AbstractBaseWindowedBolt {
 
 
-    private static final Logger LOG = LoggerFactory.getLogger(End30minWindow.class);
+    private static final Logger LOG = LoggerFactory.getLogger(End30minWindowingBolt.class);
 
     private OutputCollector collector;
 

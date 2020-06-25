@@ -1,6 +1,6 @@
 package ee.ut.cs.bigdata.taxitrips.query1;
 
-import ee.ut.cs.bigdata.taxitrips.query1.bolt.End30minWindow;
+import ee.ut.cs.bigdata.taxitrips.query1.bolt.End30minWindowingBolt;
 import ee.ut.cs.bigdata.taxitrips.storm.DropoffTimeExtractor;
 import ee.ut.cs.bigdata.taxitrips.storm.bolt.CsvFileOutputBolt;
 import ee.ut.cs.bigdata.taxitrips.storm.bolt.DataFilterBolt;
@@ -34,7 +34,7 @@ public class FrequentRoutesTopology extends ConfigurableTopology {
         builder.setBolt("datafilter-bolt", new DataFilterBolt())
                 .shuffleGrouping("csvfilespout");
 
-        builder.setBolt("endtime-30min-windowing", new End30minWindow()
+        builder.setBolt("endtime-30min-windowing", new End30minWindowingBolt()
                 .withWindow(BaseWindowedBolt.Duration.minutes(30)/*, BaseWindowedBolt.Count.of(1)*/)
                 .withTimestampExtractor(new DropoffTimeExtractor())
                 .withLag(BaseWindowedBolt.Duration.minutes(0))
