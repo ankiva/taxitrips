@@ -11,7 +11,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <javac.version>1.8</javac.version>
-        <storm.version>2.1.0</storm.version>
+        <storm.version>2.6.0</storm.version>
     </properties>
 
     <dependencies>
